@@ -501,14 +501,7 @@ func serve() {
 
 func main() {
 	t1 := time.Now()
-	//	runtime.ThreadCreateProfile()
 	loadAreas()
-
-	//time.Sleep(1 * time.Second)
-	// for _, area := range areas {
-	// 	//fmt.Println(area)
-	// 	fmt.Println(area.Name, len(area.Mobs), "mobs", len(area.Items), "items", len(area.Rooms), "rooms")
-	// }
 	fmt.Fprintf(os.Stderr, "loading:  %v\n", time.Since(t1))
 	fmt.Println(runtime.NumCPU(), "cpus")
 
