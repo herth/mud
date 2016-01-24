@@ -118,6 +118,17 @@ func skipWS(reader *bufio.Reader) (eof bool) {
 	return eof
 }
 
+type Player struct {
+	Name       string
+	Connection net.Conn
+}
+
+type World struct {
+	Players []Player
+}
+
+var world World
+
 type Mob struct {
 	ID          string
 	Name        string
@@ -357,7 +368,6 @@ func (area *Area) readResets(r *bufio.Reader) {
 			return
 		}
 		_, _ = readEOL(r)
-
 	}
 }
 
@@ -451,8 +461,10 @@ func loadAreas() {
 	//fmt.Println(areas)
 }
 
-func handler(c net.Conn) {
+func handle(c net.Conn) {
 	//buffer := make([]byte, 1024)
+	player := Player{Name: "foo", Connection: c}
+	world.Players = append(world.Players, player)
 	scanner := bufio.NewScanner(c)
 	log.Printf("New connection from %v\n", c.RemoteAddr())
 	for scanner.Scan() {
@@ -479,7 +491,7 @@ func serve() {
 		if err != nil {
 			log.Fatal(err)
 		}
-		go handler(conn)
+		go handle(conn)
 	}
 }
 
