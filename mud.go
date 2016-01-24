@@ -459,31 +459,15 @@ func handler(c net.Conn) {
 		line := scanner.Text()
 		log.Println("read:", line)
 	}
-
-	// for {
-	// 	n, err := c.Read(buffer)
-
-	// 	if err == io.EOF {
-	// 		log.Printf("socket closed %v\n", c.RemoteAddr())
-	// 		c.Close()
-	// 		return
-	// 	}
-	// 	if err != nil {
-	// 		log.Println("error reading socket", err)
-	// 		c.Close()
-	// 		return
-	// 	}
-	// 	if n == 0 {
-	// 		log.Println("zero read")
-	// 		c.Close()
-	// 		return
-	// 	}
-	// 	log.Println("read", string(buffer[:n]))
-	// }
+	err := scanner.Err()
+	if err != nil {
+		log.Println(err)
+	}
 	log.Printf("socket closed %v\n", c.RemoteAddr())
 }
 
 func serve() {
+
 	listener, err := net.Listen("tcp", ":8000")
 	if err != nil {
 		log.Fatal(err)
