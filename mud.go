@@ -15,6 +15,8 @@ import (
 	"time"
 )
 
+
+
 func readWord(reader *bufio.Reader) (word string, eof bool) {
 	var b bytes.Buffer
 	eof = skipWS(reader)
@@ -33,7 +35,6 @@ func readWord(reader *bufio.Reader) (word string, eof bool) {
 		if rune == 10 {
 			break
 		}
-
 		b.WriteRune(rune)
 	}
 	return b.String(), eof
@@ -118,17 +119,20 @@ func skipWS(reader *bufio.Reader) (eof bool) {
 	return eof
 }
 
+// Player object
 type Player struct {
 	Name       string
 	Connection net.Conn
 }
 
+// World The whole world 
 type World struct {
 	Players []Player
 }
 
 var world World
 
+// Mob  the mobile
 type Mob struct {
 	ID          string
 	Name        string
@@ -138,6 +142,7 @@ type Mob struct {
 	Race        string
 }
 
+// Item the item
 type Item struct {
 	ID        string
 	Name      string
@@ -145,6 +150,7 @@ type Item struct {
 	LongDesc  string
 }
 
+// Exit room exit
 type Exit struct {
 	Description string
 	Keyword     string
@@ -153,11 +159,13 @@ type Exit struct {
 	To          string
 }
 
+// ExtraDescription x
 type ExtraDescription struct {
 	Keyword     string
 	Description string
 }
 
+// Room room
 type Room struct {
 	ID          string
 	Name        string
@@ -166,6 +174,7 @@ type Room struct {
 	Extra       []ExtraDescription
 }
 
+// Area the whole area
 type Area struct {
 	Name     string
 	FileName string
@@ -537,6 +546,7 @@ loop:
 	return
 }
 
+
 func handle(c net.Conn) {
 	//buffer := make([]byte, 1024)
 	player := Player{Name: "foo", Connection: c}
@@ -563,7 +573,6 @@ func handle(c net.Conn) {
 }
 
 func serve() {
-
 	listener, err := net.Listen("tcp", ":8000")
 	if err != nil {
 		log.Fatal(err)
@@ -580,6 +589,7 @@ func serve() {
 }
 
 func main() {
+    fmt.Println("MUD starting...")
 	t1 := time.Now()
 	loadAreas()
 	fmt.Fprintf(os.Stderr, "loading:  %v\n", time.Since(t1))
