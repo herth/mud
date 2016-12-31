@@ -15,8 +15,6 @@ import (
 	"time"
 )
 
-
-
 func readWord(reader *bufio.Reader) (word string, eof bool) {
 	var b bytes.Buffer
 	eof = skipWS(reader)
@@ -119,13 +117,7 @@ func skipWS(reader *bufio.Reader) (eof bool) {
 	return eof
 }
 
-// Player object
-type Player struct {
-	Name       string
-	Connection net.Conn
-}
-
-// World The whole world 
+// World The whole world
 type World struct {
 	Players []Player
 }
@@ -546,14 +538,13 @@ loop:
 	return
 }
 
-
 func handle(c net.Conn) {
 	//buffer := make([]byte, 1024)
-	player := Player{Name: "foo", Connection: c}
+	player := Player{Name: "JohnDoe", Connection: c, Handler: readName}
 	world.Players = append(world.Players, player)
 
 	r := bufio.NewReader(c)
-
+	player.Printf("How would you like to be called?\n")
 	for {
 		tokens, eof := readExpr(r)
 		fmt.Println("read")
@@ -564,12 +555,15 @@ func handle(c net.Conn) {
 			c.Close()
 			break
 		}
+		if len(tokens) > 0 {
+			player.Handler(&player, tokens)
+		}
 		if eof {
 			break
 		}
 	}
 
-	log.Printf("socket closed %v\n", c.RemoteAddr())
+	log.Printf("socket of %s closed %v\n", player.Name, c.RemoteAddr())
 }
 
 func serve() {
@@ -578,6 +572,7 @@ func serve() {
 		log.Fatal(err)
 	}
 	defer listener.Close()
+	fmt.Println("listening on port 8000")
 	for {
 		// Wait for a connection.
 		conn, err := listener.Accept()
@@ -588,8 +583,11 @@ func serve() {
 	}
 }
 
+func foo(name, family string, age, size int) {
+}
+
 func main() {
-    fmt.Println("MUD starting...")
+	fmt.Println("MUD starting...")
 	t1 := time.Now()
 	loadAreas()
 	fmt.Fprintf(os.Stderr, "loading:  %v\n", time.Since(t1))
