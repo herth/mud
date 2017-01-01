@@ -52,7 +52,7 @@ func areaHandler(w http.ResponseWriter, r *http.Request) {
 			fmt.Fprintf(w, "<div id=\"room\">\n")
 			fmt.Fprintf(w, "<div id=\"id\"><a name=\"%s\"></a>%s</div><br>\n", r.GetID(), r.ID)
 			fmt.Fprintf(w, "<div id=\"name\">%s</div><br>\n", r.Name)
-			fmt.Fprintf(w, "<div id=\"desc\">%s</div><br>\n", r.Description)
+			fmt.Fprintf(w, "<div id=\"desc\"><pre>%s</pre></div><br>\n", r.Description)
 
 			fmt.Fprintf(w, "Exits: ")
 			for i, exit := range r.Exit {
@@ -68,7 +68,7 @@ func areaHandler(w http.ResponseWriter, r *http.Request) {
 					}
 				}
 			}
-			fmt.Fprintf(w, "</div>")
+			fmt.Fprintf(w, "</div><br>")
 		}
 	}
 
@@ -89,7 +89,7 @@ func roomHandler(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "<div id=\"area\"><a href=/area/?nr=%d>%s</a></div><br>\n", room.Area.Nr, room.Area.Name)
 	fmt.Fprintf(w, "<div id=\"id\"><a name=\"%s\"></a>%s</div><br>\n", room.GetID(), room.ID)
 	fmt.Fprintf(w, "<div id=\"name\">%s</div><br>\n", room.Name)
-	fmt.Fprintf(w, "<div id=\"desc\">%s</div><br>\n", room.Description)
+	fmt.Fprintf(w, "<div id=\"desc\"><pre>%s</pre></div><br>\n", room.Description)
 
 	fmt.Fprintf(w, "Exits: ")
 	for i, exit := range room.Exit {
