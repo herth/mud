@@ -145,6 +145,6 @@ func main() {
 	loadAreas()
 	fmt.Fprintf(os.Stderr, "loading:  %v\n", time.Since(t1))
 	fmt.Println(runtime.NumCPU(), "cpus")
-
+	go startWebServer()
 	serve()
 }
