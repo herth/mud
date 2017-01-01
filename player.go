@@ -10,6 +10,9 @@ type Player struct {
 	Name       string
 	Connection net.Conn
 	Handler    InputHandler
+	Valid      bool
+	Level      int
+	Room       *Room
 }
 
 func (p *Player) Printf(f string, args ...interface{}) {
