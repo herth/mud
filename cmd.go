@@ -147,7 +147,11 @@ func goDir(dirName string) CmdFun {
 					}
 					r := world.Rooms[to]
 					if r != nil {
+						if p.Room != nil {
+							p.Room.removeChar(p)
+						}
 						p.Room = r
+						r.addChar(p)
 						showRoom(p, r)
 						return
 					}

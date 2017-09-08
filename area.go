@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 func readWord(reader *bufio.Reader) (word string, eof bool) {
@@ -151,6 +152,7 @@ type Mob struct {
 	LongDesc    string
 	Description string
 	Race        string
+	Room        *Room
 }
 
 // Item the item
@@ -160,6 +162,80 @@ type Item struct {
 	ShortDesc string
 	LongDesc  string
 }
+
+type Thing interface {
+}
+
+type Container struct {
+	sync.RWMutex
+	contents []Thing
+}
+
+// thread safe container
+func (c *Container) Content() []Thing {
+	c.RLock()
+	cont := c.contents
+	c.RUnlock()
+	return cont
+}
+
+func (c *Container) Add(a Thing) {
+	c.Lock()
+	c.contents = append(c.contents, a)
+	c.Unlock()
+}
+
+func (c *Container) Remove(a Thing) bool {
+	c.Lock()
+	contents := c.contents
+	for pos, element := range contents {
+		if element == a {
+			newc := make([]Thing, len(contents)-1)
+			copy(newc[:pos], contents[:pos])
+			copy(newc[pos:], contents[pos+1:])
+			c.contents = newc
+			c.Unlock()
+			return true
+		}
+	}
+	c.Unlock()
+	return false
+}
+
+type Char interface {
+	GetName() string
+	GetShortDesc() string
+	GetLongDesc() string
+	GetRoom() *Room
+	SetRoom(r *Room)
+}
+
+func MoveToRoom(c Char, r *Room) {
+	c.GetRoom().removeChar(c)
+}
+
+func (m *Mob) GetName() string {
+	return m.Name
+}
+
+func (m *Mob) GetShortDesc() string {
+	return m.ShortDesc
+}
+
+func (m *Mob) GetLongDesc() string {
+	return m.LongDesc
+}
+
+func (m *Mob) GetRoom() *Room {
+	return m.Room
+}
+
+func (m *Mob) SetRoom(r *Room) {
+	m.Room = r
+}
+
+// assert Mob satisfies Char
+var _ Char = &Mob{}
 
 const (
 	NORTH = 0
@@ -196,6 +272,9 @@ type Room struct {
 	Extra       []ExtraDescription
 	Area        *Area
 	X, Y, Z     int
+	Chars       []Char
+	Items       []*Item
+	Mux         sync.Mutex
 }
 
 func (r *Room) GetID() string {
@@ -204,6 +283,44 @@ func (r *Room) GetID() string {
 		id = fmt.Sprintf(":%d:%s", r.Area.Nr, r.ID)
 	}
 	return id
+}
+
+func (r *Room) addChar(c Char) {
+	r.Mux.Lock()
+	r.Chars = append(r.Chars, c)
+	r.Mux.Unlock()
+}
+
+func (r *Room) removeChar(c Char) {
+	r.Mux.Lock()
+	old := r.Chars
+	for pos, ch := range old {
+		if ch == c {
+			l := len(r.Chars)
+			copy(r.Chars[pos:], r.Chars[pos+1:])
+			r.Chars[l-1] = nil
+			r.Chars = r.Chars[:l-1]
+			return
+		}
+	}
+	r.Mux.Unlock()
+}
+
+func (r *Room) addItem(i *Item) {
+	r.Items = append(r.Items, i)
+}
+
+func (r *Room) removeItem(i *Item) {
+	old := r.Items
+	for pos, it := range old {
+		if it == i {
+			l := len(r.Items)
+			copy(r.Items[pos:], r.Items[pos+1:])
+			r.Items[l-1] = nil
+			r.Items = r.Items[:l-1]
+			return
+		}
+	}
 }
 
 // Area the whole area
